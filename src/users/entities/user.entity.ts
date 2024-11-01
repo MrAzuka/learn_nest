@@ -18,6 +18,7 @@ export class User {
   @Column()
   password: string;
 
+  // Did this because i will be using this property in several entities, also the prefix must always be set to false
   @Column(() => EntityDates, { prefix: false })
   registryDate: EntityDates
 }

@@ -4,6 +4,8 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { PAGINATION_DEFAULT_PAGE_SIZE } from 'src/common/util/common.constants';
 
 @Injectable()
 export class UsersService {
@@ -17,8 +19,12 @@ export class UsersService {
     return await this.userRepository.save(user);
   }
 
-  async findAll() {
-    return await this.userRepository.find();
+  async findAll(paginationDto: PaginationDto) {
+    const { limit, offset } = paginationDto
+    return await this.userRepository.find({
+      skip: offset,
+      take: limit ?? PAGINATION_DEFAULT_PAGE_SIZE.USER
+    });
   }
 
   async findOne(id: number) {
@@ -31,6 +37,7 @@ export class UsersService {
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
+    // The preload loads the data from the entity, creates a new one with the updated data then replaces all the original data when i save.
     const user = await this.userRepository.preload({ id, ...updateUserDto })
 
     if (!user) {
